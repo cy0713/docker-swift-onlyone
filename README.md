@@ -13,13 +13,17 @@ I suggest using the data container methodology.
 So first we create a data only container for /srv.
 
 ```bash
+**pull busybox first**：$ docker pull busybox
 vagrant@host1:~$ docker run -v /srv --name SWIFT_DATA busybox
 ```
+Note: busybox是一个聚成了一百多个最常用linux命令和工具的软件工具箱，它在单一的可执行文件中提供了精简的Unix工具集。BusyBox可运行于多款POSIX环境的操作系统中，如 Linux(包括Android),hurd,freebsa等，busybox既包含了一些简单实用工具，如cat 和 echo ,也包含了一些更大，更复杂的工具，如 grep ,find ,mount 以及telnet.
+
 
 Now that we have a data container, we can use the "--volumes-from" option when creating the "onlyone" container. Note that in this case I've called the image built from this docker file "curtis/swift-onlyone".
 
 ```bash
-vagrant@host1:~$ ID=$(docker run --name onlyone --hostname onlyone -d -p 12345:8080 --volumes-from SWIFT_DATA -t curtis/swift-onlyone)
+**build image first**：$ docker build -t swift-onlyone .
+vagrant@host1:~$ ID=$(docker run --name onlyone --hostname onlyone -d -p 12345:8080 --volumes-from SWIFT_DATA -t swift-onlyone)
 ```
 
 With that container running we can now check the logs.
@@ -63,6 +67,7 @@ CONTAINER ID        IMAGE                         COMMAND                CREATED
 We can now use the swift python client to access Swift using the Docker forwarded port, in this example port 12345.
 
 ```bash
+**install python-swiftclient first**：$ sudo apt install python-swiftclient
 vagrant@host1:~$ swift -A http://127.0.0.1:12345/auth/v1.0 -U test:tester -K testing stat
        Account: AUTH_test
     Containers: 0
@@ -77,6 +82,7 @@ X-Put-Timestamp: 1402463864.77057
 Try uploading a file:
 
 ```bash
+**prepare file to upload first**：$ sudo vim swift.txt
 vagrant@host1:~$ swift -A http://127.0.0.1:12345/auth/v1.0 -U test:tester -K testing upload swift swift.txt
 swift.txt
 ```
